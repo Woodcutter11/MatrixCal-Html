@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Matrix Calculator</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: white;
+    color: #222;
+    display: flex;
+    min-height: 100vh;
+    line-height: 1.6;
+
+  }
+   header {
+    background: #c30623;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 900;
+    
+   }
+  nav {
+    width: 220px;
+    padding: 24px 20px;
+    border-right: 1px solid #ddd;
+    box-sizing: border-box;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #314f58;
+  }
+  nav ul {
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+    font-weight: 500;
+  }
+  nav ul li {
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  nav ul li:hover {
+    text-decoration: underline;
+  }
+  main {
+    flex-grow: 1;
+    padding: 35px 50px 50px 50px;
+    max-width: 900px;
+    box-sizing: border-box;
+    
+  }
+  h1 {
+    font-weight: 700;
+    font-size: 1.9rem;
+    color: #c30623;
+    margin-bottom: 0.25em;
+  }
+  h2 {
+      font-size: 20px;
+      margin-top: 30px;
+    }
+
+  p.description {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    max-width: 600px;
+    margin-bottom: 1.75em;
+    color: #222;
+  }
+  .matrix-setup {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 30px;
+  }
+  .matrix-dimensions {
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .matrix-controls {
+    margin-bottom: 20px;
+  }
+  label{
+    display: block;
+    
+    cursor: pointer;
+    font-size: 1.05rem;
+
+  }
+  input[type="number"] {
+    width: 45px;
+    padding: 5px 4px;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-right: 10px;
+  }
+  button.generate-btn, button#calculate {
+    background-color: #000000;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 10px 22px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    
+  }
+  button.generate-btn:hover, button#calculate:hover {
+    background-color: #636364;
+  }
+  table.matrix, table.matrix-result {
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  table.matrix td, table.matrix-result td {
+    border: 1.8px solid #666;
+    padding: 6px 14px;
+    width: 56px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  table.matrix td input {
+    width: 50px;
+    border: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 4px 2px;
+    text-align: center;
+    outline-offset: 2px;
+  }
+  table.matrix td input:focus {
+    outline: 2px solid #4caf50;
+    outline-offset: 0;
+  }
+  #errorMsg {
+    color: #d32f2f;
+    font-weight: 700;
+    margin-top: 5px;
+  }
+
+  /* Section content styling */
+  .section-content {
+    display: none;
+  }
+  .section-content.active {
+    display: block;
+  }
+  .back-btn {
+    margin: 20px 0 10px 0;
+    background: hwb(204 16% 27%);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+  .back-btn:hover {
+    background-color: #1c5980;
+  }
+
+ .highlight {
+      font-weight: bold;
+  }
+  .matrix {
+      white-space: pre;
+      padding: 10px;
+      margin: 10px 0;
+      border-left: 4px;
+  }
+  .step {
+      margin-left: 20px;
+  }
+  ul {
+      margin-bottom: 20px;
+  }
+  .math {
+      font-family: 'Cambria Math', serif;
+      font-size: 18px;
+      margin-left: 20px;
+  }
+
+  
+
+</style>
+</head>
+<body><header>M<br>
+  A<br>
+  T<br>
+  R<br>
+  I<br>
+  X<br><br>
+  C<br>
+  A<br> 
+  L<br> 
+  C<br> 
+  U<br> 
+  L<br>
+  A<br>
+  T<br> 
+  O<br> 
+  R
+</header>
+
+  <nav>
+    <div><strong>Matrix Operation and Overview</strong></div><br>
+    <ul id="tocList">
+      <li data-section="Overview">1. Overview</li>
+      <li data-section="Addition">2. Matrix Addition</li>
+      <li data-section="Subtraction">3. Matrix Subtraction</li>
+      <li data-section="multiplication">4. Matrix Multiplication</li>
+      <li data-section="Scalar">5. Scalar</li>
+      <li data-section="Transpose">6. Transpose</li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="calculatorSection">
+      <h1>Matrix Calculator with Adjustable Dimensions</h1>
+      <p class="description">
+        Set rows and columns for Matrix A and Matrix B (max 6). Click "Generate" to create input matrices.
+        You can perform addition, subtraction, multiplication, transpose, and inversion if valid.
+      </p>
+
+      <div class="matrix-setup">
+        <div class="matrix-controls">
+          <div class="matrix-dimensions">Matrix A Dimensions:</div>
+          <label for="rowsA">Rows:</label>
+          <input type="number" id="rowsA" min="1" max="6" value="2" />
+          <label for="colsA">Columns:</label>
+          <input type="number" id="colsA" min="1" max="6" value="2" />
+          <button class="generate-btn" onclick="generateMatrix('A')">Generate Matrix A</button>
+        </div>
+
+        <div class="matrix-controls">
+          <div class="matrix-dimensions">Matrix B Dimensions:</div>
+          <label for="rowsB">Rows:</label>
+          <input type="number" id="rowsB" min="1" max="6" value="2" />
+          <label for="colsB">Columns:</label>
+          <input type="number" id="colsB" min="1" max="6" value="2" />
+          <button class="generate-btn" onclick="generateMatrix('B')">Generate Matrix B</button>
+        </div>
+      </div>
+
+      <div class="matrices-wrapper">
+        <div class="matrix-container">
+          <div class="matrix-label">Matrix A:</div>
+          <div id="matrixAContainer"></div>
+        </div>
+
+        <div class="matrix-container">
+          <div class="matrix-label">Matrix B:</div>
+          <div id="matrixBContainer"></div>
+        </div>
+      </div>
+
+      <form id="matrixForm" class="operation-selection" onsubmit="return false;">
+        <div><strong>Find:</strong></div>
+        <label><input type="radio" name="operation" value="add" checked> A + B</label>
+        <label><input type="radio" name="operation" value="subtract"> A − B</label>
+        <label><input type="radio" name="operation" value="multiply"> A × B</label>
+        <label><input type="radio" name="operation" value="transposeA"> Transpose of A</label>
+        <label><input type="radio" name="operation" value="transposeB"> Transpose of B</label>
+        <label><input type="radio" name="operation" value="inverseA"> Inverse of A</label>
+        <label><input type="radio" name="operation" value="inverseB"> Inverse of B</label>
+
+        <button id="calculate" type="submit" aria-label="Calculate result">Calculate</button>
+      </form>
+
+      <div id="errorMsg" role="alert" aria-live="assertive"></div>
+      <div id="result" aria-live="polite" role="region"></div>
+    </section>
+	
+
+<script>
+  function generateMatrix(matrixId) {
+    const rows = parseInt(document.getElementById('rows' + matrixId).value);
+    const cols = parseInt(document.getElementById('cols' + matrixId).value);
+    const container = document.getElementById('matrix' + matrixId + 'Container');
+    container.innerHTML = '';
+
+    if(rows < 1 || cols < 1 || rows > 6 || cols > 6){
+      alert('Rows and Columns must be between 1 and 6');
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.classList.add('matrix');
+    for (let i = 0; i < rows; i++) {
+      const tr = document.createElement('tr');
+      for (let j = 0; j < cols; j++) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = 0;
+        input.id = matrixId + '_' + i + '_' + j;
+        input.min = -99;
+        input.max = 99;
+        input.step = 'any';
+        td.appendChild(input);
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+    container.appendChild(table);
+  }
+
+  function getMatrix(matrixId) {
+    const rows = parseInt(document.getElementById('rows' + matrixId).value);
+    const cols = parseInt(document.getElementById('cols' + matrixId).value);
+    const matrix = [];
+    for (let i = 0; i < rows; i++) {
+      let row = [];
+      for (let j = 0; j < cols; j++) {
+        const input = document.getElementById(matrixId + '_' + i + '_' + j);
+        if (!input) return null;
+        const value = parseFloat(input.value);
+        if (isNaN(value)) return null;
+        row.push(value);
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  }
+
+  function displayMatrix(matrix, label) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '<h2>' + label + '</h2>';
+
+    if(!matrix || matrix.length === 0){
+      resultDiv.innerHTML += '<p>No matrix to display</p>';
+      return;
+    }
+    const table = document.createElement('table');
+    table.classList.add('matrix-result');
+    matrix.forEach(row => {
+      const tr = document.createElement('tr');
+      row.forEach(val => {
+        const td = document.createElement('td');
+        td.textContent = val.toFixed(2);
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    });
+    resultDiv.appendChild(table);
+  }
+
+  function transpose(matrix) {
+    if(!matrix || matrix.length === 0) return null;
+    let rows = matrix.length;
+    let cols = matrix[0].length;
+    const result = [];
+    for(let c = 0; c < cols; c++){
+      let newRow = [];
+      for(let r = 0; r < rows; r++){
+        newRow.push(matrix[r][c]);
+      }
+      result.push(newRow);
+    }
+    return result;
+  }
+
+  function addMatrices(A, B) {
+    let rows = A.length, cols = A[0].length;
+    const result = [];
+    for(let i=0; i<rows; i++){
+      const newRow = [];
+      for(let j=0; j<cols; j++){
+        newRow.push(A[i][j] + B[i][j]);
+      }
+      result.push(newRow);
+    }
+    return result;
+  }
+
+  function subtractMatrices(A, B) {
+    let rows = A.length, cols = A[0].length;
+    const result = [];
+    for(let i=0; i<rows; i++){
+      const newRow = [];
+      for(let j=0; j<cols; j++){
+        newRow.push(A[i][j] - B[i][j]);
+      }
+      result.push(newRow);
+    }
+    return result;
+  }
+
+  function multiplyMatrices(A, B) {
+    let rowsA = A.length, colsA = A[0].length;
+    let rowsB = B.length, colsB = B[0].length;
+    const result = [];
+
+    for (let i=0; i<rowsA; i++) {
+      const newRow = [];
+      for (let j=0; j<colsB; j++) {
+        let sum = 0;
+        for(let k=0; k<colsA; k++) {
+          sum += A[i][k] * B[k][j];
+        }
+        newRow.push(sum);
+      }
+      result.push(newRow);
+    }
+    return result;
+  }
+
+  function determinant(matrix){
+    if(matrix.length !== matrix[0].length) return null;
+    if(matrix.length === 1) return matrix[0][0];
+    if(matrix.length === 2) {
+      return matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0];
+    }
+    return null;
+  }
+
+  function inverseMatrix(matrix){
+    let det = determinant(matrix);
+    if(det === 0 || det === null) return null;
+    if(matrix.length === 1){
+      return [[1 / matrix[0][0]]];
+    }
+    if(matrix.length === 2){
+      let invDet = 1/det;
+      return [
+        [matrix[1][1]*invDet, -matrix[0][1]*invDet],
+        [-matrix[1][0]*invDet, matrix[0][0]*invDet]
+      ];
+    }
+    return null;
+  }
+
+  document.getElementById('matrixForm').addEventListener('submit', () => {
+    document.getElementById('errorMsg').textContent = '';
+    const opSelected = document.querySelector('input[name="operation"]:checked');
+    if(!opSelected){
+      document.getElementById('errorMsg').textContent = 'Please select an operation.';
+      return;
+    }
+    const operation = opSelected.value;
+
+    const A = getMatrix('A');
+    const B = getMatrix('B');
+
+    if(A === null){
+      document.getElementById('errorMsg').textContent = 'Please generate and fill Matrix A with valid numbers.';
+      return;
+    }
+    if((operation !== 'transposeA' && operation !== 'inverseA') && B === null){
+      document.getElementById('errorMsg').textContent = 'Please generate and fill Matrix B with valid numbers.';
+      return;
+    }
+
+    let resultMatrix;
+    let resultLabel;
+
+    switch(operation){
+      case 'add':
+        if(A.length !== B.length || A[0].length !== B[0].length){
+          document.getElementById('errorMsg').textContent = 'Matrices A and B must have the same dimensions for addition.';
+          return;
+        }
+        resultMatrix = addMatrices(A, B);
+        resultLabel = 'A + B =';
+        break;
+
+      case 'subtract':
+        if(A.length !== B.length || A[0].length !== B[0].length){
+          document.getElementById('errorMsg').textContent = 'Matrices A and B must have the same dimensions for subtraction.';
+          return;
+        }
+        resultMatrix = subtractMatrices(A, B);
+        resultLabel = 'A − B =';
+        break;
+
+      case 'multiply':
+        if(A[0].length !== B.length){
+          document.getElementById('errorMsg').textContent = 'Number of columns in A must equal number of rows in B for multiplication.';
+          return;
+        }
+        resultMatrix = multiplyMatrices(A, B);
+        resultLabel = 'A × B =';
+        break;
+
+      case 'transposeA':
+        resultMatrix = transpose(A);
+        resultLabel = 'Transpose of A =';
+        break;
+
+      case 'transposeB':
+        if(B === null) {
+          document.getElementById('errorMsg').textContent = 'Please generate and fill Matrix B with valid numbers.';
+          return;
+        }
+        resultMatrix = transpose(B);
+        resultLabel = 'Transpose of B =';
+        break;
+
+      case 'inverseA':
+        if(A.length !== A[0].length){
+          document.getElementById('errorMsg').textContent = 'Matrix A must be square to invert.';
+          return;
+        }
+        resultMatrix = inverseMatrix(A);
+        if(resultMatrix === null){
+          document.getElementById('errorMsg').textContent = 'Matrix A is singular, not invertible, or inverse for > 2x2 not implemented.';
+          return;
+        }
+        resultLabel = 'Inverse of A =';
+        break;
+
+      case 'inverseB':
+        if(B.length !== B[0].length){
+          document.getElementById('errorMsg').textContent = 'Matrix B must be square to invert.';
+          return;
+        }
+        resultMatrix = inverseMatrix(B);
+        if(resultMatrix === null){
+          document.getElementById('errorMsg').textContent = 'Matrix B is singular, not invertible, or inverse for > 2x2 not implemented.';
+          return;
+        }
+        resultLabel = 'Inverse of B =';
+        break;
+    }
+
+    displayMatrix(resultMatrix, resultLabel);
+  });
+
+  // Generate default matrices on load
+  window.onload = () => {
+    generateMatrix('A');
+    generateMatrix('B');
+  };
+</script>
+
+
+
+    <!-- Section content placeholders -->
+    <section id="Overview" class="section-content" tabindex="0">
+      <button class="back-btn" onclick="showCalculator()">Back to Calculator</button>
+      <h2>Overview</h2>
+        <p>
+    A <span class="highlight">matrix</span>, in a mathematical context, is a rectangular array of numbers, symbols, or expressions that are arranged in rows and columns. Matrices are often used in scientific fields such as physics, computer graphics, probability theory, statistics, calculus, numerical analysis, and more.
+  </p>
+  <p>
+    The <span class="highlight">dimensions</span> of a matrix, <em>A</em>, are typically denoted as <strong>m × n</strong>. This means that <em>A</em> has <strong>m</strong> rows and <strong>n</strong> columns.
+  </p>
+  <p>
+    When referring to a specific value in a matrix, called an <span class="highlight">element</span>, a variable with two indices is often used to denote each element based on its position in the matrix.
+  </p>
+  <div class="example">
+    For example, given <code>a<sub>ij</sub></code>, where <code>i = 1</code> and <code>j = 3</code>, <code>a<sub>13</sub></code> is the value of the element in the first row and the third column of the given matrix.
+  </div>
+  <p>
+    Matrix operations such as <strong>addition</strong>, <strong>multiplication</strong>, <strong>subtraction</strong>, etc., are similar to what most people are likely accustomed to seeing in basic arithmetic and algebra, but do it often in more ways, and are subject to certain constraints.
+  </p>
+
+    </section>
+
+    <section id="Addition" class="section-content" tabindex="0">
+      <button class="back-btn" onclick="showCalculator()">Back to Calculator</button>
+      <h2>Addition</h2>
+      <p>
+    <span class="highlight">Matrix addition</span> can only be performed on matrices of the same size. This means that you can only add matrices if both matrices are <em>m × n</em>. For example, you can add two or more <strong>3 × 3</strong>, <strong>1 × 2</strong>, or <strong>4 × 4</strong> matrices. You cannot add a <strong>2 × 3</strong> and a <strong>3 × 2</strong> matrix, a <strong>4 × 4</strong> and a <strong>3 × 3</strong>, etc. The number of rows and columns of all matrices must be the same.
+  </p>
+
+  <p>
+    If the matrices are the same size, matrix addition is performed by adding the corresponding elements in the matrices. For example, given two matrices, <em>A</em> and <em>B</em>, with elements <code>a<sub>ij</sub></code> and <code>b<sub>ij</sub></code>, the matrices are added by adding each element, then placing the result in a new matrix, <em>C</em>, in the corresponding position:
+  </p>
+
+  <div class="matrix">
+A = | 1  2  3 |     B = | 5  6  7 |
+    | 4  5  6 |         | 8  9 10 |
+  </div>
+
+  <p>In the above matrices:</p>
+  <ul>
+    <li><code>m = 2</code></li>
+    <li><code>a<sub>11</sub> = 1</code></li>
+    <li><code>a<sub>12</sub> = 2</code></li>
+    <li><code>a<sub>13</sub> = 3</code></li>
+    <li><code>b<sub>11</sub> = 5</code></li>
+    <li><code>b<sub>12</sub> = 6</code></li>
+  </ul>
+
+<p>We add the corresponding elements to obtain <code>c<sub>ij</sub></code>:</p>
+  <div class="step">
+    <p><code>a<sub>11</sub> + b<sub>11</sub> = 1 + 5 = 6 = c<sub>11</sub></code></p>
+    <p><code>a<sub>12</sub> + b<sub>12</sub> = 2 + 6 = 8 = c<sub>12</sub></code></p>
+    <p><code>a<sub>13</sub> + b<sub>13</sub> = 3 + 7 = 10 = c<sub>13</sub></code></p>
+    <p><code>a<sub>21</sub> + b<sub>21</sub> = 4 + 8 = 12 = c<sub>21</sub></code></p>
+    <p><code>a<sub>22</sub> + b<sub>22</sub> = 5 + 9 = 14 = c<sub>22</sub></code></p>
+    <p><code>a<sub>23</sub> + b<sub>23</sub> = 6 + 10 = 16 = c<sub>23</sub></code></p>
+  </div>
+
+  <p>Thus, matrix <em>C</em> is:</p>
+  <div class="matrix">
+C = |  6   8  10 |
+    | 12  14  16 |
+  </div>
+
+    </section>
+
+    <section id="Subtraction" class="section-content" tabindex="0">
+      <button class="back-btn" onclick="showCalculator()">Back to Calculator</button>
+      <h2>Subtraction</h2>
+      <p>
+    <span class="highlight">Matrix subtraction</span> is performed in much the same way as matrix addition, with the exception that the values are subtracted rather than added. If necessary, refer to the matrix addition explanation for notation details. Like matrix addition, the matrices being subtracted must be the same size.
+  </p>
+
+  <p>
+    If the matrices are the same size, then matrix subtraction is performed by subtracting the elements in the corresponding rows and columns:
+  </p>
+
+  <div class="matrix">
+A = | 1  2 |     B = | 5  6 |
+    | 3  4 |         | 7  8 |
+  </div>
+
+  <div class="step">
+    <p><code>a<sub>11</sub> - b<sub>11</sub> = 1 - 5 = -4 = c<sub>11</sub></code></p>
+    <p><code>a<sub>12</sub> - b<sub>12</sub> = 2 - 6 = -4 = c<sub>12</sub></code></p>
+    <p><code>a<sub>21</sub> - b<sub>21</sub> = 3 - 7 = -4 = c<sub>21</sub></code></p>
+    <p><code>a<sub>22</sub> - b<sub>22</sub> = 4 - 8 = -4 = c<sub>22</sub></code></p>
+  </div>
+
+  <p>Thus, matrix <em>C</em> is:</p>
+  <div class="matrix">
+C = | -4  -4 |
+    | -4  -4 |
+  </div>
+
+    </section>
+
+    <section id="multiplication" class="section-content" tabindex="0">
+      <button class="back-btn" onclick="showCalculator()">Back to Calculator</button>
+      <h2>Multiplication</h2>
+      <p>
+    To multiply two matrices, the number of columns in the first must equal the number of rows in the second. For example, a <strong>2×3</strong> matrix can multiply with a <strong>3×4</strong> matrix, but not with a <strong>4×3</strong>. Note: <em>A × B</em> may be valid, but <em>B × A</em> might not.
+  </p>
+
+  <p>
+    Matrix multiplication isn’t commutative. It involves taking the dot product of each row from the first matrix with each column from the second. The result is a new matrix with rows from the first and columns from the second.
+  </p>
+
+  <p><span class="highlight">Example:</span></p>
+  <div class="matrix">
+A = | 2  4  7 |<br>
+    | 3  6  1 |
+
+B = | 1  2  7  1 |<br>
+    | 2  4  8  3 |<br>
+    | 3  1  0  6 |
+  </div>
+
+  <p>
+    Since A is <strong>2×3</strong> and B is <strong>3×4</strong>, the product <em>C = A × B</em> will be <strong>2×4</strong>.
+  </p>
+
+<p><span class="highlight">Dot Product Calculations:</span></p>
+  <div class="step">
+    <p><code>c<sub>11</sub> = 2×1 + 4×2 + 7×3 = 31</code></p>
+    <p><code>c<sub>12</sub> = 2×2 + 4×4 + 7×1 = 27</code></p>
+    <p><code>c<sub>13</sub> = 2×7 + 4×8 + 7×0 = 46</code></p>
+    <p><code>c<sub>14</sub> = 2×1 + 4×3 + 7×6 = 56</code></p>
+    <p><code>c<sub>21</sub> = 3×1 + 6×2 + 1×3 = 18</code></p>
+    <p><code>c<sub>22</sub> = 3×2 + 6×4 + 1×1 = 31</code></p>
+    <p><code>c<sub>23</sub> = 3×7 + 6×8 + 1×0 = 69</code></p>
+    <p><code>c<sub>24</sub> = 3×1 + 6×3 + 1×6 = 27</code></p>
+  </div>
+
+    </section>
+
+    <section id="Scalar" class="section-content" tabindex="0">
+      <button class="back-btn" onclick="showCalculator()">Back to Calculator</button>
+      <h2>Scalar Example and definition</h2>
+      <p>A scalar matrix operation is the multiplication of every element within a matrix by a scalar, which is a single real number.</p>
+      <p>The result is a new matrix with the same dimensions as the original, where each entry is the product of the scalar and the corresponding entry from the original matrix.</p>
+        <h2>How to Perform the Operation</h2>
+  <ul>
+    <li><span class="highlight">Identify the scalar and the matrix:</span> A scalar is a single real number, and a matrix is a grid of numbers.</li><br>
+    <li><span class="highlight">Multiply each element:</span> Take the scalar and multiply it by every single element in the matrix.</li><br>
+    <li><span class="highlight">Keep the dimensions the same:</span> The resulting matrix will have the exact same number of rows and columns as the original matrix.</li><br>
+  </ul>
+
+  <h2>Example</h2>
+  <p>If you have a matrix:</p>
+  <div class="math">
+    A = [ [4, 3], [2, 12] ]<br>
+    k = ½
+  </div>
+
+  <p>Then scalar multiplication is:</p>
+  <div class="math">
+    k × A = ½ × [ [4, 3], [2, 12] ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= [ [½×4, ½×3], [½×2, ½×12] ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= [ [2, 3⁄2], [1, 6] ]
+  </div>
+
+    </section>
+
+    <section id="Transpose" class="section-content" tabindex="0">
+      <button class="back-btn" onclick="showCalculator()">Back to Calculator</button>
+      <h2>Transposing Matrices</h2>
+      <p>
+    A scalar matrix operation is the multiplication of every element within a matrix by a scalar, which is a single real number. The result is a new matrix with the same dimensions as the original, where each entry is the product of the scalar and the corresponding entry from the original matrix.
+  </p>
+
+  <p>
+    For example, multiplying matrix <em>A</em> by a scalar <em>k</em> means each element <code>a<sub>ij</sub></code> in <em>A</em> becomes <code>k × a<sub>ij</sub></code> in the new matrix.
+  </p>
+
+  <h2>Example: Matrix Transposition</h2>
+
+  <p>Let's say you have the following matrix A:</p>
+  <div class="math">
+    A = [ [1, 2, 3],<br>
+        [4, 5, 6] ]
+  </div>
+
+  <p>The first row is [1, 2, 3]. This will become the first column of the transposed matrix:</p>
+  <div class="math">
+    A<sup>T</sup> = [ [1],<br>
+        [2],<br>
+        [3] ]
+  </div>
+<p>The second row is [4, 5, 6]. This will become the second column:</p>
+  <div class="math">
+    A<sup>T</sup> = [ [1, 4],<br>
+        [2, 5],<br>
+        [3, 6] ]
+  </div>
+
+  <p>The transposed matrix, <em>A<sup>T</sup></em>, is:</p>
+  <div class="math">
+    A<sup>T</sup> = [ [1, 4],<br>
+        [2, 5],<br>
+        [3, 6] ]
+  </div>
+
+    </section>
+
+  </main>
+
+<script>
+  // Generate matrix on page load
+  window.onload = () => {
+    generateMatrix('A');
+    generateMatrix('B');
+  };
+
+  function generateMatrix(matrixId) {
+    const rows = parseInt(document.getElementById('rows' + matrixId).value);
+    const cols = parseInt(document.getElementById('cols' + matrixId).value);
+    const container = document.getElementById('matrix' + matrixId + 'Container');
+    container.innerHTML = '';
+
+    if(rows < 1 || cols < 1 || rows > 6 || cols > 6){
+      alert('Rows and Columns must be between 1 and 6');
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.classList.add('matrix');
+    for (let i = 0; i < rows; i++) {
+      const tr = document.createElement('tr');
+      for (let j = 0; j < cols; j++) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = 0;
+        input.id = matrixId + '_' + i + '_' + j;
+        input.min = -99;
+        input.max = 99;
+        input.step = 'any';
+        td.appendChild(input);
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+    container.appendChild(table);
+  }
+
+  // Common matrix functions (getMatrix, operations) omitted for brevity
+  // ... same as previous code, omitted here for clarity, include in final code
+
+  // Show section content by id, hide calculator
+  document.getElementById('tocList').addEventListener('click', function(e){
+    if(e.target && e.target.nodeName === "LI"){
+      const sectionId = e.target.getAttribute('data-section');
+      if(sectionId){
+        document.getElementById('calculatorSection').style.display = 'none';
+
+        // Hide all section-content
+        document.querySelectorAll('.section-content').forEach(sec => {
+          sec.classList.remove('active');
+        });
+
+        // Show selected section
+        const section = document.getElementById(sectionId);
+        if(section){
+          section.classList.add('active');
+          section.focus();
+        }
+      }
+    }
+  });
+
+  // Back button function
+  function showCalculator(){
+    // Hide all sections
+    document.querySelectorAll('.section-content').forEach(sec => {
+      sec.classList.remove('active');
+    });
+    // Show calculator
+    document.getElementById('calculatorSection').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
